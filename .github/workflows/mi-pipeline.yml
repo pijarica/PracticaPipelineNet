@@ -29,6 +29,6 @@ jobs:
         run: dotnet build src/Backend/MiApi/MiApi.csproj --configuration Release
 
       - name: Ejecutar Pruebas
-        run: dotnet test tests/UnitTests/UnitTests.csproj
+        run: dotnet test tests/UnitTests/MiApi.Tests.csproj
       
 
