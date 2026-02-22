@@ -1,0 +1,32 @@
+name: Mi practica de pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  construir-proyecto:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version  : '8.0.x'
+
+      - name: Restaurar paquetes
+        run: dotnet build src/Backend/MiApi/MiApi.csproj
+
+      - name: Compilar Backend
+        run: dotnet build src/Backend/MiApi/MiApi.csproj --configuration Release
+
+      - name: Ejecutar Pruebas
+        run: dotnet test tests/UnitTests/UnitTests.csproj
+      
+
