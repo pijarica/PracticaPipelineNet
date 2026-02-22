@@ -1,47 +1,50 @@
-name: Mi practica de pipeline
+name: Pipeline Full Stack .NET
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  # ETAPA 1: CI 
-  construir-proyecto:
-
+  # JOB 1: CI
+  construir_y_publicar:
     runs-on: ubuntu-latest
-
     steps:
       - name: Descargar codigo
         uses: actions/checkout@v4
 
-      - name: Configurar .NET
+      - name: Configurar .NET 8
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version  : '8.0.x'
+          dotnet-version: '8.0.x'
 
-      - name: Restaurar paquetes
-        run: dotnet restore src/Backend/MiApi/MiApi.csproj
-
-      - name: Compilar Backend
-        run: dotnet build src/Backend/MiApi/MiApi.csproj --configuration Release
+      - name: Restaurar y Compilar
+        run: |
+          dotnet restore src/Backend/**/*.csproj
+          dotnet build src/Backend/**/*.csproj --configuration Release --no-restore
 
       - name: Ejecutar Pruebas
-        run: dotnet test tests/UnitTests/MiApi.Tests.csproj
-# ETAPA 2: CD (Entrega Continua / Deploy)
-  desplegar-en-produccion:
+        run: dotnet test tests/**/*.csproj --no-build --verbosity normal
+
+      - name: Publicar Aplicacion
+        run: dotnet publish src/Backend/**/*.csproj -c Release -o ./publish_output
+
+      - name: Subir Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mi-app-compilada
+          path: ./publish_output
+
+  # JOB 2: CD (Entrega Continua / Deploy)
+  desplegar_en_produccion:
     runs-on: ubuntu-latest
-    needs: construir-y-publicar # Solo corre si la etapa anterior fue exitosa
+    needs: construir_y_publicar
     steps:
-      - name: Descargar el Artifact guardado
+      - name: Descargar el Artifact
         uses: actions/download-artifact@v4
         with:
           name: mi-app-compilada
 
-      - name: Simular Deploy en Azure (Ejemplo)
-        # Nota: En un caso real, aquí usarías 'azure/webapps-deploy@v2' con tus credenciales
-        run: echo "Desplegando archivos compilados en el servidor de producción en Italia..."
-
+      - name: Simular Deploy
+        run: echo "Desplegando en el servidor..."
