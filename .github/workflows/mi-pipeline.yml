@@ -9,6 +9,7 @@ on:
       - main
 
 jobs:
+  # ETAPA 1: CI 
   construir-proyecto:
 
     runs-on: ubuntu-latest
@@ -30,5 +31,17 @@ jobs:
 
       - name: Ejecutar Pruebas
         run: dotnet test tests/UnitTests/MiApi.Tests.csproj
-      
+# ETAPA 2: CD (Entrega Continua / Deploy)
+  desplegar-en-produccion:
+    runs-on: ubuntu-latest
+    needs: construir-y-publicar # Solo corre si la etapa anterior fue exitosa
+    steps:
+      - name: Descargar el Artifact guardado
+        uses: actions/download-artifact@v4
+        with:
+          name: mi-app-compilada
+
+      - name: Simular Deploy en Azure (Ejemplo)
+        # Nota: En un caso real, aquí usarías 'azure/webapps-deploy@v2' con tus credenciales
+        run: echo "Desplegando archivos compilados en el servidor de producción en Italia..."
 
